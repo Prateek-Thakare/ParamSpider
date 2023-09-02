@@ -78,7 +78,7 @@ def clean_urls(urls, extensions, placeholder):
             cleaned_urls.add(cleaned_url)
     return list(cleaned_urls)
 
-def fetch_and_clean_urls(domain, extensions, stream_output,proxy, placeholder):
+def fetch_and_clean_urls(domain, extensions, stream_output,proxy, placeholder, output_path):
     """
     Fetch and clean URLs related to a specific domain from the Wayback Machine.
 
@@ -102,7 +102,11 @@ def fetch_and_clean_urls(domain, extensions, stream_output,proxy, placeholder):
     logging.info(f"{Fore.YELLOW}[INFO]{Style.RESET_ALL} Found {Fore.GREEN + str(len(cleaned_urls)) + Style.RESET_ALL} URLs after cleaning")
     logging.info(f"{Fore.YELLOW}[INFO]{Style.RESET_ALL} Extracting URLs with parameters")
     
-    results_dir = "results"
+    if output_path:
+        results_dir = output_path
+    else:
+        results_dir = "results"
+        
     if not os.path.exists(results_dir):
         os.makedirs(results_dir)
 
@@ -139,6 +143,8 @@ def main():
     parser.add_argument("-s", "--stream", action="store_true", help="Stream URLs on the terminal.")
     parser.add_argument("--proxy", help="Set the proxy address for web requests.",default=None)
     parser.add_argument("-p", "--placeholder", help="placeholder for parameter values", default="FUZZ")
+    parser.add_argument("-o", "--output_path", help="Output directory path", default=None)
+
     args = parser.parse_args()
 
     if not args.domain and not args.list:
@@ -154,15 +160,18 @@ def main():
             domains = list(set(domains))  # Remove duplicates
     else:
         domain = args.domain
+    
+    
+
 
     extensions = HARDCODED_EXTENSIONS
 
     if args.domain:
-        fetch_and_clean_urls(domain, extensions, args.stream, args.proxy, args.placeholder)
+        fetch_and_clean_urls(domain, extensions, args.stream, args.proxy, args.placeholder, args.output_path)
 
     if args.list:
         for domain in domains:
-            fetch_and_clean_urls(domain, extensions, args.stream,args.proxy, args.placeholder)
+            fetch_and_clean_urls(domain, extensions, args.stream,args.proxy, args.placeholder, args.output_path)
 
 if __name__ == "__main__":
     main()
